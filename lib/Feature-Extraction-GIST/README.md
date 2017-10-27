@@ -5,10 +5,10 @@ Before your run it, remember to change path to the directory where you put jpg f
 ## Pre-requirements
 numpy, PIL, gist, csv, FFTW
 
-# Install numpy
+### Install numpy
 $ pip install numpy
 
-# Install FFTW
+### Install FFTW
 FFTW download: http://www.fftw.org
 Install instruction: http://www.fftw.org/fftw3_doc/Installation-on-Unix.html
 
@@ -16,7 +16,7 @@ $ ./configure --enable-single --enable-shared
 $ make
 $ sudo make install
 
-# Install gist
+### Install gist
 
 Download lear_gist: https://github.com/tuttieee/lear-gist-python
 
