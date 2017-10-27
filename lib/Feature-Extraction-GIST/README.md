@@ -1,5 +1,4 @@
 ## How to reproduce feature.py in your laptop?
-# Authour: Siyi Tao
 
 Before your run it, remember to change path to the directory where you put jpg files.
 
