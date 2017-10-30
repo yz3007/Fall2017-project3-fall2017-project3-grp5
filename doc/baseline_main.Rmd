@@ -121,10 +121,10 @@ Visualize cross-validation results.
 
 ```{r cv_vis}
 if(run.cv){
-  load("../output/err_cv.RData")
+  load("../output/baseline_err_cv.RData")
   #pdf("../fig/cv_results.pdf", width=7, height=5)
   plot(model_values, err_cv[,1], xlab="Interaction Depth", ylab="CV Error",
-       main="Cross Validation Error", type="n", ylim=c(0, 0.25))
+       main="Cross Validation Error", type="n", ylim=c(0, 0.6))
   points(model_values, err_cv[,1], col="blue", pch=16)
   lines(model_values, err_cv[,1], col="blue")
   arrows(model_values, err_cv[,1]-err_cv[,2], model_values, err_cv[,1]+err_cv[,2], 
