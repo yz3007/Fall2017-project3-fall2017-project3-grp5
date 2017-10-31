@@ -77,10 +77,10 @@ sift_data <- read.csv("../data/sift_train.csv",header=TRUE, stringsAsFactors = F
 ### divide into training and sampling data set
 ```{r}
 sampling <- sample(seq(1:3000),3000*0.25) %>% sort()
-label_test <- labels[sampling,]
-label_train <- labels[-sampling,]
-dat_test <- sift_data[sampling,]
-dat_train <- sift_data[-sampling,]
+label_test <- labels[sampling,-1]
+label_train <- labels[-sampling,-1]
+dat_test <- sift_data[sampling,-1]
+dat_train <- sift_data[-sampling,-1]
 ```
 
 
