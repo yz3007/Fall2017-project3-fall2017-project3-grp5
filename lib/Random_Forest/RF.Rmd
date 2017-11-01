@@ -1,0 +1,61 @@
+---
+title: "rf"
+author: "Jiayu Ni"
+date: "10/31/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(randomForest)
+
+
+raw_data <- read.csv('../data/feature.csv',header = F,skip = 1)
+raw_data <- raw_data[,2:ncol(raw_data)]
+raw_data$y <- as.factor(read.csv('../data/label_train.csv',header = F,skip = 1)[,2])
+
+# build model
+train.rf<- function(traindata) {
+  
+  traindata$y<- as.factor(traindata$y)
+  y.index<- which(colnames(traindata)=="y")
+  bestmtry <- tuneRF(y= traindata$y, x= traindata[,-y.index], stepFactor=1.5, improve=1e-5, ntree=600)
+  best.mtry <- bestmtry[,1][which.min(bestmtry[,2])]
+  
+  model.rf <- randomForest(y ~ ., data = traindata, ntree=600, mtry=best.mtry, importance=T)
+  return(model.rf)
+}
+# predict model
+test.rf <- function(model,test.data) {
+  return(predict(model, test.data, type = "class"))
+}
+
+# main_part : k fold cross validation
+K <- 5
+n <- nrow(raw_data)
+n.fold <- floor(n/K)
+s <- sample(rep(1:K, c(rep(n.fold, K-1), n-(K-1)*n.fold)))
+
+cv.error.rf <- rep(NA, K)
+
+for (i in 1:K){
+  print(i)
+
+  train.data <- raw_data[s != i,]
+  test.data <- raw_data[s == i,]
+  
+  fit.rf <- train.rf(train.data)
+  pred.rf <- test.rf(fit.rf, test.data)  
+  cv.error.rf[i] <- mean(pred.rf != test.data$y)
+
+}			
+cv.error.rf
+
+
+
+
+# test part
+#rf <- train.rf(traindata = raw_data[1:1000,])
+#fit.rf <- train.rf(train_data)
+#pred.rf <- test.rf(fit.rf, test_data)  
+#accuracy<- mean(pred.rf != test_data$y)
+```
