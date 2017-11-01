@@ -6,15 +6,15 @@
 
 Term: Fall 2017
 
-+ Team #
++ Team 5
 + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
+	+ Chen, Tiantian
+	+ Guo, Yajie
+	+ Ni, Jiayu
+	+ Tao, Siyi
+	+ Zhao, Yufei 
 
-+ Project summary: In this project, we created a classification engine for images of dogs versus fried chicken versus blueberry muffins. 
++ Project summary: In this project, except 5000 SIFT feature descriptors, we extracted 960 GIST feature descriptors, which summarizes the gradient information (scales and orientations) for different parts of an image. Then we tested SVM (linear and non-linear), random forest, GBM, XGBoost classification methods to recognize images of dogs versus fried chicken versus blueberry muffins. XGBoost achieves best result, after tuning, test error is around 10.4%.
 	
 **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
