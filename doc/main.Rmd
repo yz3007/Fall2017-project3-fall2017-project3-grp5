@@ -1,0 +1,158 @@
+---
+title: "main"
+author: "Siyi Tao"
+date: "11/1/2017"
+output: html_document
+---
+
+# Step 0: Prepare Environment and Load Packages
+Before you run next chunk, please follow the instructions to install all packages we need.
+
+Pre-requirements:
+
+numpy, random, pickle, time, xgboost, PIL, gist, csv, FFTW
+
+(1) Install numpy, random, pickle
+
+$ pip install numpy
+
+$ pip install random
+
+$ pip install pickle
+
+(2) Install FFTW
+
+FFTW download: http://www.fftw.org
+
+Install instruction: http://www.fftw.org/fftw3_doc/Installation-on-Unix.html
+
+$ ./configure --enable-single --enable-shared
+
+$ make
+
+$ sudo make install
+
+(3) Install gist
+
+Download lear_gist: https://github.com/tuttieee/lear-gist-python
+
+$ sudo python setup.py build_ext
+
+$ python setup.py install
+
+If fftw3f is installed in non-standard path (for example, HOME/local), use -I and -L options:
+
+$ sudo python setup.py build_ext -I HOME/local/include -L HOME/local/lib
+
+(4) Install xgboost
+
+Instructions for Install XGBoost on Mac OSX : 
+
+https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_XGBoost_on_Mac_OSX?lang=en
+
+You might encounter a problem when insert command "make -j4". Here is an efficeint way to solve the problem: https://stackoverflow.com/questions/36211018/clang-error-errorunsupported-option-fopenmp-on-mac-osx-el-capitan-buildin
+
+
+# Step 1: Read Test Pictures Information
+Before you run next chunk, please make sure you meet following requirements:
+
+(1) Make sure path variable is where you store all your test images
+
+(2) Make sure 5000 SIFT feature descriptors of your test images are stored in the data folder as feature_sift_test.csv
+
+(3) Make sure label of your test images are stored in the data folder as label_test.csv
+
+# Step 2: XGBoost Model
+
+```{python, engine.path='/Users/siyi/anaconda/bin/python'}
+import pandas as pd
+import random
+import pickle
+import time 
+import xgboost
+import os
+import numpy as np
+from PIL import Image
+import gist
+import csv
+
+def feature_output(path):
+    # Write headers for feature.csv file
+    with open("feature.csv", "w") as feature_csv:
+        writer = csv.writer(feature_csv, delimiter=',')
+        writer.writerow(['Image Name'])
+    jpg_files = [f for f in os.listdir(path) if f.endswith('.jpg')]
+    for index, jpg_pic in enumerate(jpg_files):
+        
+        feature = feature_extract(path, jpg_pic)
+        # Record time
+        # if index % 50 == 0:
+        #     print(index)
+        #     print("--- %s seconds ---" % (time.time() - start_time))
+        with open("feature.csv", "a") as feature_csv:
+            writer = csv.writer(feature_csv, delimiter=',')
+            writer.writerow([jpg_pic]+feature)
+            
+# Feature extraction function for a picture
+def feature_extract(path, jpg_pic):
+    jpg_pic_path = path + "/" + jpg_pic
+    pilimg = Image.open(jpg_pic_path)
+    img = np.asarray(pilimg)
+    if len(img.shape) == 2:
+        img = greyToRGB(img)
+    desc = gist.extract(img)
+    feature = np.ndarray.tolist(desc)
+    return(feature)
+    
+# For grayscale picture, change it to RGB picture
+# because GIST descriptor is used for RGB pictures
+def greyToRGB(img):
+    w, h = img.shape
+    ret = np.empty((w, h, 3), dtype=np.uint8)
+    ret[:, :, 0] = img
+    ret[:, :, 1] = ret[:, :, 2] = ret[:, :, 0]
+    return(ret)
+
+
+
+# Record time
+# start_time = time.time() 
+# feature_output(path = "/Users/siyi/Documents/Study-Columbia/17FALL/GR5243-Applied-Data-Science/Project3/training_set/images")
+# Record time
+# print("--- %s seconds ---" % (time.time() - start_time))
+
+path = "/Users/siyi/Documents/Study-Columbia/17FALL/GR5243-Applied-Data-Science/Project3/training_set/images2"
+feature_output(path)
+gist_new = pd.read_csv('feature.csv', skiprows=1, header = None).iloc[:, 1:]
+sift_new = pd.read_csv('../data/feature_sift_test.csv').iloc[:, 1:]
+label_new = pd.read_csv('../data/label_test.csv').iloc[:, 1]
+feature = pd.concat([sift_new, gist_new], axis=1)
+feature.columns = ['x' + str(i+1) for i in range(5000)] + ['f' + str(i+1) for i in range(960)]
+
+# require X_test, y_test
+X_test = feature
+y_test = label_new
+
+# load the baseline model
+filename = '../output/model_baseline.sav'
+xgb_1 = pickle.load(open(filename, 'rb'))
+
+# load the tuned xgboost model
+filename = '../output/model_tuned.sav'
+xgb_2 = pickle.load(open(filename, 'rb'))
+
+print("Baseline: ")
+pred = xgb_1.predict(X_test)
+y_label = y_test.values
+print ('classification error=%f' % (sum([pred[i] != y_label[i] for i in range(len(y_label))]) / float(len(y_label)) ))  
+print ('You can check training time in the file xgboost_train.py.')
+
+print("Tuned: ")
+pred = xgb_2.predict(X_test)
+y_label = y_test.values
+print ('classification error=%f' % (sum([pred[i] != y_label[i] for i in range(len(y_label))]) / float(len(y_label)) ))
+print ('You can check training time in the file xgboost_train.py.')
+```
+
+
+
