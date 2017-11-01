@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Untitled</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>main</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11778,7 +11778,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Step-0:-Load-Packages">Step 0: Load Packages<a class="anchor-link" href="#Step-0:-Load-Packages">&#182;</a></h1>
+<h1 id="Project-3-|-Group-5">Project 3 | Group 5<a class="anchor-link" href="#Project-3-|-Group-5">&#182;</a></h1>
 </div>
 </div>
 </div>
@@ -11787,28 +11787,37 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Before you run next chunk, please follow the instructions to install all packages we need:</p>
-<p>Pre-requirements:</p>
+<h1 id="Step-0:-Prepare-Environment-and-Load-Packages">Step 0: Prepare Environment and Load Packages<a class="anchor-link" href="#Step-0:-Prepare-Environment-and-Load-Packages">&#182;</a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Before you run next chunk, please follow the instructions to install all packages we need.</p>
+<p><strong>Pre-requirements:</strong></p>
 <p>numpy, random, pickle, time, xgboost, PIL, gist, csv, FFTW</p>
-<p>(1) Install numpy, random, pickle</p>
+<p><strong>(1) Install numpy, random, pickle</strong></p>
 <p>$ pip install numpy</p>
 <p>$ pip install random</p>
 <p>$ pip install pickle</p>
-<p>(2) Install FFTW</p>
+<p><strong>(2) Install FFTW</strong></p>
 <p>FFTW download: <a href="http://www.fftw.org">http://www.fftw.org</a></p>
 <p>Install instruction: <a href="http://www.fftw.org/fftw3_doc/Installation-on-Unix.html">http://www.fftw.org/fftw3_doc/Installation-on-Unix.html</a></p>
 <p>$ ./configure --enable-single --enable-shared</p>
 <p>$ make</p>
 <p>$ sudo make install</p>
-<p>(3) Install gist</p>
+<p><strong>(3) Install gist</strong></p>
 <p>Download lear_gist: <a href="https://github.com/tuttieee/lear-gist-python">https://github.com/tuttieee/lear-gist-python</a></p>
 <p>$ sudo python setup.py build_ext</p>
 <p>$ python setup.py install</p>
 <p>If fftw3f is installed in non-standard path (for example, HOME/local), use -I and -L options:</p>
 <p>$ sudo python setup.py build_ext -I HOME/local/include -L HOME/local/lib</p>
-<p>(4) Install xgboost</p>
-<p>Install instructions: <a href="https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_XGBoost_on_Mac_OSX?lang=en">https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_XGBoost_on_Mac_OSX?lang=en</a></p>
-<p>Problems you might encounter when you install: <a href="https://stackoverflow.com/questions/36211018/clang-error-errorunsupported-option-fopenmp-on-mac-osx-el-capitan-buildin">https://stackoverflow.com/questions/36211018/clang-error-errorunsupported-option-fopenmp-on-mac-osx-el-capitan-buildin</a></p>
+<p><strong>(4) Install xgboost</strong></p>
+<p>Instructions for Install XGBoost on Mac OSX : <a href="https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_XGBoost_on_Mac_OSX?lang=en">https://www.ibm.com/developerworks/community/blogs/jfp/entry/Installing_XGBoost_on_Mac_OSX?lang=en</a></p>
+<p>You might encounter a problem when insert command "make -j4". Here is an efficeint way to solve the problem: <a href="https://stackoverflow.com/questions/36211018/clang-error-errorunsupported-option-fopenmp-on-mac-osx-el-capitan-buildin">https://stackoverflow.com/questions/36211018/clang-error-errorunsupported-option-fopenmp-on-mac-osx-el-capitan-buildin</a></p>
 
 </div>
 </div>
@@ -11905,7 +11914,7 @@ div#notebook {
 <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;../output/model_baseline.sav&#39;</span>
 <span class="n">xgb_1</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
 
-<span class="c1"># load the tuned model</span>
+<span class="c1"># load the tuned xgboost model</span>
 <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;../output/model_tuned.sav&#39;</span>
 <span class="n">xgb_2</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
 </pre></div>
@@ -11920,17 +11929,17 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Baseline: &quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Baseline: &quot;</span><span class="p">)</span>
 <span class="n">pred</span> <span class="o">=</span> <span class="n">xgb_1</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
 <span class="n">y_label</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span>
 <span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;classification error=</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y_label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))])</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))</span> <span class="p">))</span>  
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;You can check training time in the file xgboost_train.py.&#39;</span><span class="p">)</span>
 
-<span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Tuned: &quot;</span><span class="p">)</span>
 <span class="n">pred</span> <span class="o">=</span> <span class="n">xgb_2</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
 <span class="n">y_label</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">values</span>
-<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;classification error=</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y_label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))])</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))</span> <span class="p">))</span>  
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;classification error=</span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="n">pred</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y_label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))])</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_label</span><span class="p">))</span> <span class="p">))</span>
+<span class="nb">print</span> <span class="p">(</span><span class="s1">&#39;You can check training time in the file xgboost_train.py.&#39;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11947,8 +11956,10 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Baseline: 
 classification error=0.000000
+You can check training time in the file xgboost_train.py.
 Tuned: 
 classification error=0.000000
+You can check training time in the file xgboost_train.py.
 </pre>
 </div>
 </div>

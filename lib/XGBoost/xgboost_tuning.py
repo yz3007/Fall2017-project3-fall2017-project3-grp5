@@ -76,4 +76,4 @@ xgb_BO_scores['score'] = pd.DataFrame(xgb_BO.res['all']['values'])
 xgb_BO_scores = xgb_BO_scores.sort_values(by='score',ascending=False)
 
 # save the tuning results
-xgb_BO_scores.to_csv("../output/xgb_BO_5960f_scores.csv", index=False)
+xgb_BO_scores.to_csv("./output/xgb_BO_5960f_scores.csv", index=False)
