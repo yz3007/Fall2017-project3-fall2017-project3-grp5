@@ -1,6 +1,7 @@
 import pandas as pd
 import xgboost as xgb
 import pickle
+import time 
 
 # --------------------
 # --- Loading Data ---
@@ -30,7 +31,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random
 # --- Train Model: Baseline Model ---
 # -----------------------------------
 
-
+start = time.time()
 model_baseline = xgb.XGBClassifier(learning_rate = 0.1
                         , objective = 'multi:softmax'
 			, n_estimators = 140
@@ -44,11 +45,11 @@ model_baseline = xgb.XGBClassifier(learning_rate = 0.1
 model_baseline.fit(X_train, y_train)
 
 
-# -------------------
-# --- Tuned Model ---
-# -------------------
+# ---------------------------
+# --- Tuned XGBoost Model ---
+# ---------------------------
 
-xgb_BO_scores = pd.read_csv("../output/xgb_BO_5960f_scores.csv")
+xgb_BO_scores = pd.read_csv("./output/xgb_BO_5960f_scores.csv")
 params = dict()
 params['max_depth'] = int(xgb_BO_scores['max_depth'][0])
 params['min_child_weight'] = int(xgb_BO_scores['min_child_weight'][0])
@@ -56,7 +57,7 @@ params['colsample_bytree'] = xgb_BO_scores['colsample_bytree'][0]
 params['subsample'] = xgb_BO_scores['subsample'][0]
 params['gamma'] = xgb_BO_scores['gamma'][0]
 
-
+start = time.time()
 model_tuned = xgb.XGBClassifier(learning_rate = 0.1
                         , objective = 'multi:softmax'
                         , n_estimators = 140
@@ -70,7 +71,7 @@ model_tuned = xgb.XGBClassifier(learning_rate = 0.1
                        )
 
 model_tuned.fit(X_train, y_train)
-
+print ("Training finished in %d seconds." % (time.time()-start))
 
 # save the baseline model
 filename = '../model/model_baseline.sav'
