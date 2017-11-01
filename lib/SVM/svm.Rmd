@@ -1,0 +1,201 @@
+---
+title: "SVM"
+author: "Yajie Guo"
+date: "Oct 29. 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Install packages and specify directories:
+```{r}
+packages.used=c("e1071","EBImage","ggplot2")
+packages.needed=setdiff(packages.used, intersect(installed.packages()[,1], packages.used))
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
+library(EBImage)
+library(e1071)
+library(ggplot2)
+```
+
+Use set.seed before randomization to get reproducible results.
+```{r}
+set_seed=FALSE         #use set.seed() whenever randomization needed
+run.cv=T           # run cross-validation on the training set
+K <- 5                 # number of CV folds
+train_proportion=0.70  # Porportion of the data that used for training the model
+new.feature.train =T     #process features for gievn training set
+new.feature.test=T      # process features for independent testing set
+run.test=T     # run evaluation on an independent test set
+```
+
+Import training images class labels:
+```{r}
+y<- read.csv("C:/Users/admin/Desktop/Fall2017-project3-fall2017-project3-grp5-master/data/label_train.csv", header=T)
+Y<- y[ ,-1]
+Y<-as.factor(t(Y))
+n<-length(Y)
+```
+
+Extract new features:
+```{r}
+X<-read.csv("C:/Users/admin/Desktop/Fall2017-project3-fall2017-project3-grp5-master/data/feature.csv",header = T)
+```
+
+Randomly split the data to training and testing set:
+```{r}
+if(set_seed){
+  set.seed(0)
+  Index<-sample(n,round(train_proportion*n,1),replace = F)
+} else{
+  Index<-sample(n,round(train_proportion*n,1),replace = F)
+}
+#n is the No. of all provided data
+Train.x<- data.matrix(X[Index,])
+Train.y<-Y[Index]
+Test.x<-data.matrix(X[-Index,])
+Test.y<-Y[-Index]
+```
+
+Train a classification model with training images.
+```{r}
+train_svm <- function(Train.x,Train.y,cost){
+  model = svm(Train.x,Train.y,cost = cost,kernel = "linear")
+  return(model)
+} #Linear SVM
+
+train_svm.kernel <- function(Train.x,Train.y,cost,gamma){
+  model = svm(Train.x,Train.y,cost = cost,gamma = gamma,type = "C",kernel = "radial")
+  return(model)
+} #RBF Kernel
+```
+
+Model selection with cross-validation
+```{r}
+svm.margin.cv <- function(dat.train, class.train, cost){
+  ### Use Cross validation to find the best cost parameter(if more than one provided)
+  
+  ### Input: 
+  ###  -  dat.train : train data set with each row as an observation
+  ###  -  class.train : a vector contains classes for each row of X
+  ###  -  cost : specify the cost of the margin
+  
+  ### Output: a list contains the best cost parameter, along with the coresponding error, 
+  ###         as well as a data frame conclude all cost values and error rates.
+  
+  val.err.cost.interm = numeric(5)
+  val.err.cost.f = numeric(length(cost))
+  folds = cut(seq(1,nrow(dat.train)),breaks=5,labels=FALSE)
+  #Perform 5 fold cross validation
+  for(j in 1 :length(cost))
+  { 
+    #j = 1
+    for(i in 1:5){
+      
+      val.Indexes <- which(folds==i,arr.ind=TRUE)
+      val.Data <- dat.train[val.Indexes, ]
+      train.Data <- dat.train[-val.Indexes, ]
+      train.class = class.train[-val.Indexes]
+      val.class = class.train[val.Indexes]
+      #Train the model
+      model = svm(x = train.Data, y = as.factor(train.class), cost = cost[j], kernel = "linear")
+      #Prediction on the validation data
+      pred <- predict(model,val.Data)
+      #validation error for current iteration with current cost
+      val.err.cost.interm[i] = mean(pred != val.class)  
+      
+    }
+    #Obtain the validation error for the current cost
+    val.err.cost.f[j] = mean(val.err.cost.interm)
+  }
+  linear.cost = cost[which.min(val.err.cost.f)]
+  return(list(linear.cost, min(val.err.cost.f)))
+}
+  
+svm.kernel.cv <- function(dat.train, class.train, cost, gamma)
+{
+  ### Use Cross validation to find the best cost and gamma parameter(if more than one provided for both)
+  
+  ### Input: 
+  ###  -  dat.train : train data set with each row as an observation
+  ###  -  class.train : a vector contains classes for each row of X
+  ###  -  cost : specify the cost of the margin
+  ###  -  gamma: specify the bandwidth for RBF kernel
+  
+  ### Output: a list contains the best cost and gamma parameter, 
+  ###         along with the coresponding error, as well as a data frame conclude all cost and gamma values and error rates.
+  
+  folds = cut(seq(1,nrow(dat.train)),breaks=5,labels=FALSE)
+  val.par.frame = data.frame(cost = as.vector(mapply(rep,cost,length(gamma))), gamma = rep(gamma,length(cost)), error = NA)
+  val.err.i = c()
+  for(i in 1:nrow(val.par.frame))
+  {
+    #i = 1
+    for(j in 1:5)
+    {
+      
+      val.Index = which(folds == j, arr.ind = TRUE)
+      val.data = dat.train[val.Index,]
+      train.data = dat.train[-val.Index,]
+      val.class = class.train[val.Index]
+      train.class =  class.train[-val.Index]
+      #Train SVM model with current cost and current gamma at the ith iteration
+      #model = Train.SVM.kernel(X=train.data.m.k,Y=train.class.m.k,cost=val.par.frame$cost[i],gamma = val.par.frame$gamma[i])
+      model = svm(x=train.data,y=as.factor(train.class),cost = val.par.frame$cost[i],gamma = val.par.frame$gamma[i],type = "C",kernel = "radial")
+      #Prediction on validation data with current cost and current gamma at current iteration
+      pred = predict(model,val.data)
+      #Validaiton error at this iteration with current gamma and cost
+      val.err.i[j] = mean(pred != val.class)
+      
+    }
+    val.par.frame$error[i] = mean(val.err.i)
+  }
+  
+  #For cost
+  kernel.cost = val.par.frame$cost[which.min(val.par.frame$error)]
+  #For gamma:
+  kernel.gamma = as.numeric(as.character(val.par.frame$gamma[which.min(val.par.frame$error)]))
+  
+  return(list(cost = kernel.cost, gamma = kernel.gamma, cv.error = min(val.par.frame$error), frame = val.par.frame))
+}
+svm.margin.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08))
+svm.kernel.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08), c(0.1, 0.2, 0.005)) 
+
+
+# We run svm.margin.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08)) and svm.kernel.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08), c(0.1, 0.2, 0.005)) to find which model is better. We found the lowest error is 0.3309524 when cost is 0.01 for linear svm. Also, when cost is 0.08, gamma is 0.005, the error is 0.4290476 when it comes to RBF Kernel. So linear svm is better than RBF so far.
+```
+
+Make prediction and model evaluation
+```{r}
+test.svm <- function(model,val,class){
+  ### Fit the classfication model(SVM) with testing data
+  
+  ### Input: 
+  ###  -  model : the model
+  ###  -  val : validation data set, with each row as an observation
+  ###  -  class : a vector of classes for each observation of val
+  ### Output: the predicted classes generated by model on validation data set
+  pred <- predict(model,val)
+  return(mean(pred != class))
+}
+test.svm(train_svm(Test.x, Test.y, 0.001), Test.x, Test.y)
+test.svm(train_svm.kernel(Test.x, Test.y, 0.001, 0.03), Test.x, Test.y)
+
+
+# By running test.svm(train_svm(Test.x, Test.y, 0.001), Test.x, Test.y) and test.svm(train_svm.kernel(Test.x, Test.y, 0.001, 0.03), Test.x, Test.y), we found the error rate of linear svm is 0.2833333, while RBF is much higher 0.6588889. Again, we can conclude that linear svm is better.
+```
+
+Compare running time
+```{r}
+linear.train.time<-system.time(train_svm(Train.x,Train.y,0.01))
+linear.cv.time<-system.time(svm.margin.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08)))
+rbf.train.time<-system.time(train_svm.kernel(Train.x,Train.y,0.01,0.1))
+rbf.cv.time<-system.time(svm.kernel.cv(Train.x, Train.y, c(0.01,0.04,0.0001, 0.08), c(0.1, 0.2, 0.005)))
+linear.train.time < rbf.train.time
+linear.cv.time < rbf.cv.time
+
+# It's easy to tell linear svm model spends less time compared to RBF Kernel.
+```
