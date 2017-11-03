@@ -2,7 +2,9 @@
 title: "baseline_main"
 author: "Yufei Zhao"
 date: "2017/10/29"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,24 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 print(R.version)
 ```
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 if(!require("gbm")){
   install.packages("gbm")
 }
-if(!require("dplyr")){
-  install.packages("dplyr")
-}
+
 library(gbm)
-library(dplyr)
 ```
 
-### Step 0: set seed.
-
-In order to obain reproducible results, set.seed() whenever randomization is used. 
-
-```{r seed, eval=FALSE}
-set.seed(1)
-```
 
 
 ### Step 1: set up controls for evaluation experiments.
@@ -39,19 +31,19 @@ In this chunk, ,we have a set of controls for the evaluation experiments.
 
 + (T/F) cross-validation on the training set
 + (number) K, the number of CV folds
-+ (T/F) process features for training set
 + (T/F) run evaluation on an independent test set
-+ (T/F) process features for test set
 
 ```{r exp_setup}
 run.cv=TRUE # run cross-validation on the training set
 K <- 3  # number of CV folds
-#run.feature.train=TRUE # process features for training set
 run.test=TRUE # run evaluation on an independent test set
-#run.feature.test=TRUE # process features for test set
 ```
 
+
+
+### Step 2: perform model selection by 5 folds cross-validation 
 Using cross-validation or independent test set evaluation, we compare the performance of different classifiers or classifiers with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. In your project, you maybe comparing very different classifiers. You can assign them numerical IDs and labels specific to your project. 
+
 
 ```{r model_setup}
 model_values <- seq(3, 11, 4)
@@ -65,22 +57,15 @@ model_labels = paste("GBM with depth =", model_values)
 # lables(0 for muffin, 1 for chicken, 2 for dog)
 labels <- read.csv("../data/label_train.csv",header=TRUE)
 colnames(labels)[2] <- "labels"
-```
-
-```{r}
 sift_data <- read.csv("../data/sift_train.csv",header=TRUE, stringsAsFactors = FALSE)
 ```
 
 
 
-
-### divide into training and sampling data set
 ```{r}
-sampling <- sample(seq(1:3000),3000*0.25) %>% sort()
-label_test <- labels[sampling,-1]
-label_train <- labels[-sampling,-1]
-dat_test <- sift_data[sampling,-1]
-dat_train <- sift_data[-sampling,-1]
+# prepare data
+label_train <- labels[,-1]
+dat_train <- sift_data[,-1]
 ```
 
 
@@ -92,15 +77,6 @@ source("../lib/baseline_test.R")
 
 #### Model selection with cross-validation
 * Do model selection by choosing among different values of training model parameters, that is, the interaction depth for GBM in this example. 
-
-```{r}
-# small range case !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#dat_train <- sift_data[1:100,-1]
-#label_train <- labels[1:100,-1]
-#dat_test <- sift_data[101:200,-1]
-#label_test <- labels[101:200,-1]
-```
-
 
 
 ```{r runcv, message=FALSE, warning=FALSE}
@@ -117,7 +93,8 @@ if(run.cv){
 ```
 
 
-Visualize cross-validation results. 
+
+### Step 3: Visualize cross-validation results. 
 
 ```{r cv_vis}
 if(run.cv){
@@ -143,6 +120,7 @@ if(run.cv){
 }
 
 par_best <- list(depth=model_best)
+cat(model_best)
 ```
 
 
@@ -155,31 +133,33 @@ save(fit_train, file="../output/baseline_fit_train.RData")
 ```
 
 
-### Step 5: Make prediction 
+
+### Step 4: Make prediction 
 Feed the final training model with the completely holdout testing data. 
-```{r test}
-tm_test=NA
-if(run.test){
-  load(file="../output/baseline_fit_train.RData")
-  tm_test <- system.time(pred_test <- test(fit_train, dat_test))
-  save(pred_test, file="../output/baseline_pred_test.RData")
-}
-```
 
 
-### Calculate the prediction rate
-```{r}
-load(file="../output/baseline_pred_test.RData")
-correct_rate <- mean(pred_test == label_test)
-cat("Correct rate for prediction = ", correct_rate[1], "\n")
-```
+#```{r}
+#dat_test <- read.csv("../data/sift_test.csv", header=TRUE)
+#dat_test <- dat_test[,-1] 
+#```
+
+
+#```{r test}
+#tm_test=NA
+#if(run.test){
+#  load(file="../output/baseline_fit_train.RData")
+#  tm_test <- system.time(pred_test <- test(fit_train, dat_test))
+#  save(pred_test, file="../output/baseline_pred_test.RData")
+#}
+#```
+
 
 
 ### Summarize Running Time
 Prediction performance matters, so does the running times for constructing features and for training the model, especially when the computation resource is limited. 
 ```{r running_time}
 cat("Time for training model=", tm_train[1], "s \n")
-cat("Time for making prediction=", tm_test[1], "s \n")
+#cat("Time for making prediction=", tm_test[1], "s \n")
 ```
 
 

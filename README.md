@@ -18,11 +18,11 @@ Term: Fall 2017
 	
 **Contribution statement**:
 
-	Chen, Tiantian: XGBoost model, main.ipynb construction, github organization
+	Chen, Tiantian: XGBoost model, xgboost.ipynb construction, github organization
 	Guo, Yajie: SVM model (linear and non linear)
-	Ni, Jiayu: Random forest model
-	Tao, Siyi: feature extraction, main.ipynb construction, github organization
-	Zhao, Yufei: GBM model
+	Ni, Jiayu: Random forest model (3-folds cross validation)
+	Tao, Siyi: feature extraction, xgboost.ipynb construction, github organization
+	Zhao, Yufei: GBM model (3-folds corss validation), main.Rmd and main.pdf construction
 
 
 
